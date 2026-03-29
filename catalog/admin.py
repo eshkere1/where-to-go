@@ -1,8 +1,13 @@
 from django.contrib import admin
-from catalog.models import Place
+from catalog.models import Place, Image
 
 @admin.register(Place)
 
 
 class PlaceAdmin(admin.ModelAdmin):
     list_display = ["title",]
+
+@admin.register(Image)
+
+class ImageAdmin(admin.ModelAdmin):
+    list_display = ["place",]

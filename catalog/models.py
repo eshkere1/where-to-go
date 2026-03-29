@@ -8,10 +8,15 @@ class Place(models.Model):
     longitude = models.DecimalField(verbose_name="Долгота", max_digits=17, decimal_places=14)
     latitude = models.DecimalField(verbose_name="Широта", max_digits=17, decimal_places=14)
 
-
     def __str__(self):
         return f"{self.title}"
 
+class Image(models.Model):
+    place = models.ForeignKey("Place", on_delete=models.CASCADE, verbose_name="Место")
+    image = models.ImageField(verbose_name="Картинка",)
+
+    def __str__(self):
+        return f"{self.place}"
 
 
 
