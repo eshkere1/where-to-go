@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
+from environs import Env
+
+env = Env()
+env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--kn56kc(8lx+b!3gdj%2ptfghc=u_rvzk)zr5nmic#^n!y1#sd'
+SECRET_KEY = env.str("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = env.bool("DEBUG", True)
 
-ALLOWED_HOSTS = ['127.0.0.1', '.pythonanywhere.com']
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS",[""])
 
 
 # Application definition
@@ -39,8 +43,21 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'catalog.apps.CatalogConfig',
     'tinymce',
-    'debug_toolbar'
+    'debug_toolbar',
+    'adminsortable2',
 ]
+
+TINYMCE_DEFAULT_CONFIG = {
+    'theme': 'silver',
+    'height': 500,
+    'menubar': 'edit view insert format tools table',
+    'plugins': 'advlist,autolink,lists,link,image,charmap,preview,anchor,pagebreak,'
+               'searchreplace,wordcount,visualblocks,visualchars,code,fullscreen',
+    'toolbar': 'undo redo | bold italic | alignleft aligncenter '
+               'alignright alignjustify | bullist numlist outdent indent | '
+               'removeformat | code',
+    'entity_encoding': 'raw', 
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
