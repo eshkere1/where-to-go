@@ -8,7 +8,8 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-db.sqlite3
+media/
+.sqlite3
 .Python
 build/
 develop-eggs/
