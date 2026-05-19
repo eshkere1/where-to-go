@@ -28,11 +28,6 @@ class PlaceAdmin(SortableAdminBase, admin.ModelAdmin):
 
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
-    def show_preview_image(obj):
-        return format_html(
-            '<img src="{}" style="max-width:300px; max-height=200px;">', 
-            obj.image.url
-        )
     list_display = ["place",]
     raw_id_fields = ["place",]
-    readonly_fields = [show_preview_image, ]
+    readonly_fields = [show_image, ]
