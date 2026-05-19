@@ -40,8 +40,8 @@ class Command(BaseCommand):
                     data = json.load(file)
                     place_obj, create = Place.objects.get_or_create(
                         title=data['title'],
-                        description_short=data['description_short'],
-                        description_long=data['description_long'],
+                        description_short=data['short_description'],
+                        description_long=data['long_description'],
                         longitude=float(data['coordinates']['lng']),
                         latitude=float(data['coordinates']['lat']),
                     )
@@ -59,36 +59,10 @@ class Command(BaseCommand):
                                 img_name = f'image_{number}.jpg'
                             Image.objects.create(
                                 place=place_obj,
-                                images_order=number,
+                                images=number,
                                 image=ContentFile(response.content, name=img_name),
                             )
                             self.stdout.write(self.style.SUCCESS(f'Загружена картинка {img_name}'))
                             
                         except Exception as e:
                             self.stdout.write(self.style.ERROR(f' Ошибка загрузки {img_url}: {e}'))
-
-# def get_json_info_by_file(path):
-#     with codecs.open(path, 'r', 'utf_8_sig') as file:
-#         data = file.read()
-#     parsed_place = json.loads(date)
-#     return parsed_place
-
-# def get_json_info_by_url(url):
-#     response = requests.get(url)
-#     response.raise_for_status()
-#     return response.json()
-
-# def parse_place_with_images(url):
-#     place = get_json_info_by_url(url)
-#     parsed_place = Place.objects.get_or_creat(
-#         title=place['title'],
-#         defaults={
-#             'description_short':place['description_short'],
-#             'description_short':place['description_short'],
-#             'longitude':Decimal(place['coordinates']['lng']),
-#             'latitude':Decimal(place['coordinates']['lat']),
-#         }
-#     )[0]
-#     for img_number, img_url in enumerate(place['imgs']):
-#         try:
-#             response = requests
