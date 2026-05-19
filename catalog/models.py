@@ -9,7 +9,7 @@ class Place(models.Model):
     latitude = models.DecimalField(verbose_name="Широта", max_digits=17, decimal_places=14)
 
     def __str__(self):
-        return f"{self.title}"
+        return self.title
 
 class Image(models.Model):
     place = models.ForeignKey("Place", on_delete=models.CASCADE, verbose_name="Место", related_name='images')
@@ -19,7 +19,7 @@ class Image(models.Model):
         ordering = ["images"]
 
     def __str__(self):
-        return f"{self.place}"
+        return self.place
 
 
 
