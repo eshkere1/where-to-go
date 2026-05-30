@@ -1,4 +1,5 @@
 import requests
+from requests.exceptions import HTTPError, RequestException
 from os import makedirs
 from os.path import join
 import json
@@ -14,8 +15,28 @@ class Command(BaseCommand):
         parser.add_argument('--url', type=str, help='URL к JSON файлу', default=None)
     def download_github_json(self, owner='devmanorg', repo='where-to-go-places', download_dirs='places'):
         github_url = join(f'https://api.github.com/repos/{owner}/{repo}/contents/', download_dirs)
-        response = requests.get(github_url)
-        response.raise_for_status()
+        try:
+            response = requests.get(github_url)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            status_code = e.response.status_codeя
+            if status_code == 401:
+                print("Ошибка 401: Не авторизован. Пробуем перелогиниться...")
+            elif status_code == 404:
+                print("Ошибка 404: Ресурс не найден.")
+            elif status_code == 500:
+                print("Ошибка 500: Внутренняя ошибка сервера. Повторяем запрос позже...")
+            else:
+                print(f"HTTP ошибка {status_code}: {e}")
+        except requests.exceptions.Timeout:
+            print("Таймаут: Сервер не отвечает")
+            
+        except requests.exceptions.ConnectionError:
+            print("Ошибка соединения: Сервер недоступен")
+            
+        except RequestException as e:
+            print(f"Общая ошибка запроса: {e}")
+            
         files = response.json()
         for file_info in files:
             if file_info['name'].endswith('.json'):
@@ -59,10 +80,10 @@ class Command(BaseCommand):
                                 img_name = f'image_{number}.jpg'
                             Image.objects.create(
                                 place=place_obj,
-                                images=number,
+                                images_order=number,
                                 image=ContentFile(response.content, name=img_name),
                             )
                             self.stdout.write(self.style.SUCCESS(f'Загружена картинка {img_name}'))
-                            
+
                         except Exception as e:
                             self.stdout.write(self.style.ERROR(f' Ошибка загрузки {img_url}: {e}'))
