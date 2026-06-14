@@ -8,6 +8,8 @@ from django.core.management.base import BaseCommand
 from catalog.models import Place, Image
 from pathlib import Path
 from django.core.files.base import ContentFile
+from django.db import IntegrityError
+from django.core.exceptions import ValidationError
 
 class Command(BaseCommand):
     help = "Загружает файлы json и данные из них в базу данных"
@@ -70,19 +72,21 @@ class Command(BaseCommand):
                     
                     for number, img_url in enumerate(place['imgs'], 1):
                         try:
-                            response = requests.get(img_url)
+                            response = requests.get(img_url, timeout=10)
                             response.raise_for_status()
-                            img_name = img_url.split('/')[-1]
-                            if '?' in img_name:
-                                img_name = img_name.split('?')[0]
-                            if not img_name or '.' not in img_name:
-                                img_name = f'image_{number}.jpg'
+                        except requests.exceptions.RequestException as e:
+                            self.stdout.write(self.style.ERROR(f'Ошибка загрузки {img_url}: {e}'))
+                            continue
+                        
+                        img_name = f"place_{place_obj.id}_{number}.jpg"
+                        
+                        try:
                             Image.objects.create(
                                 place=place_obj,
-                                images_index=number,
+                                images_order=number,
                                 image=ContentFile(response.content, name=img_name),
                             )
+                        except (IntegrityError, ValidationError) as e:
+                            self.stdout.write(self.style.ERROR(f'Ошибка сохранения изображения {img_name}: {e}'))
+                        else:
                             self.stdout.write(self.style.SUCCESS(f'Загружена картинка {img_name}'))
-
-                        except Exception as e:
-                            self.stdout.write(self.style.ERROR(f' Ошибка загрузки {img_url}: {e}'))
