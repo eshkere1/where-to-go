@@ -1,8 +1,9 @@
 import requests
+import sys
+import json
 from requests.exceptions import HTTPError, RequestException
 from os import makedirs
 from os.path import join
-import json
 from django.core.management.base import BaseCommand
 from catalog.models import Place, Image
 from pathlib import Path
@@ -21,21 +22,19 @@ class Command(BaseCommand):
         except requests.exceptions.HTTPError as e:
             status_code = e.response.status_codeя
             if status_code == 401:
-                print("Ошибка 401: Не авторизован. Пробуем перелогиниться...")
+                sys.stderr.write("Ошибка 401: Не авторизован. Пробуем перелогиниться...\n")
             elif status_code == 404:
-                print("Ошибка 404: Ресурс не найден.")
+                sys.stderr.write("Ошибка 404: Ресурс не найден.\n")
             elif status_code == 500:
-                print("Ошибка 500: Внутренняя ошибка сервера. Повторяем запрос позже...")
+                sys.stderr.write("Ошибка 500: Внутренняя ошибка сервера. Повторяем запрос позже...\n")
             else:
-                print(f"HTTP ошибка {status_code}: {e}")
+                sys.stderr.write(f"HTTP ошибка {status_code}: {e}\n")
         except requests.exceptions.Timeout:
-            print("Таймаут: Сервер не отвечает")
-            
+            sys.stderr.write("Таймаут: Сервер не отвечает\n")
         except requests.exceptions.ConnectionError:
-            print("Ошибка соединения: Сервер недоступен")
-            
+            sys.stderr.write("Ошибка соединения: Сервер недоступен\n")
         except RequestException as e:
-            print(f"Общая ошибка запроса: {e}")
+            sys.stderr.write(f"Общая ошибка запроса: {e}\n")
             
         files = response.json()
         for file_info in files:
@@ -58,18 +57,18 @@ class Command(BaseCommand):
         for file_path in Path('static/places').iterdir():
             if file_path.is_file():
                 with open(file_path, 'r', encoding='utf-8') as file:
-                    data = json.load(file)
+                    place = json.load(file)
                     place_obj, create = Place.objects.get_or_create(
-                        title=data['title'],
-                        description_short=data['short_description'],
-                        description_long=data['long_description'],
-                        longitude=float(data['coordinates']['lng']),
-                        latitude=float(data['coordinates']['lat']),
+                        title=place['title'],
+                        short_description=place['description_short'],
+                        long_description=place['description_long'],
+                        longitude=float(place['coordinates']['lng']),
+                        latitude=float(place['coordinates']['lat']),
                     )
                     
                     Image.objects.filter(place=place_obj).delete()
                     
-                    for number, img_url in enumerate(data['imgs'], 1):
+                    for number, img_url in enumerate(place['imgs'], 1):
                         try:
                             response = requests.get(img_url)
                             response.raise_for_status()
@@ -80,7 +79,7 @@ class Command(BaseCommand):
                                 img_name = f'image_{number}.jpg'
                             Image.objects.create(
                                 place=place_obj,
-                                images_order=number,
+                                images_index=number,
                                 image=ContentFile(response.content, name=img_name),
                             )
                             self.stdout.write(self.style.SUCCESS(f'Загружена картинка {img_name}'))
