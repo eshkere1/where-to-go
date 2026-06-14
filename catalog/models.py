@@ -19,7 +19,7 @@ class Image(models.Model):
         ordering = ["images_index"]
 
     def __str__(self):
-        return self.place
+        return str(self.place)
 
 
 
