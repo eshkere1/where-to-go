@@ -31,12 +31,12 @@ class Image(models.Model):
 	image = models.ImageField(
 		verbose_name="Картинка",
 	)
-	images_index = models.PositiveIntegerField(
+	index = models.PositiveIntegerField(
 		default=0, db_index=True, verbose_name="Порядковый номер"
 	)
 
 	class Meta:
-		ordering = ["images_index"]
+		ordering = ["index"]
 
 	def __str__(self):
 		return str(self.place)

@@ -107,7 +107,7 @@ class Command(BaseCommand):
 						try:
 							Image.objects.create(
 								place=place_obj,
-								images_order=number,
+								index=number,
 								image=ContentFile(
 									response.content, name=img_name
 								),
