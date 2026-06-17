@@ -1,8 +1,8 @@
+from adminsortable2.admin import SortableAdminBase, SortableTabularInline
 from django.contrib import admin
-from catalog.models import Place, Image
 from django.utils.html import format_html
-from adminsortable2.admin import SortableTabularInline, SortableAdminBase
 
+from catalog.models import Image, Place
 
 def show_image(obj):
 	return format_html(

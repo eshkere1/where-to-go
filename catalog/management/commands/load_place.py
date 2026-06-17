@@ -1,16 +1,17 @@
-import requests
-import sys
 import json
-from requests.exceptions import HTTPError, RequestException
+import sys
 from os import makedirs
 from os.path import join
-from django.core.management.base import BaseCommand
-from catalog.models import Place, Image
 from pathlib import Path
-from django.core.files.base import ContentFile
-from django.db import IntegrityError
-from django.core.exceptions import ValidationError
 
+import requests
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.core.management.base import BaseCommand
+from django.db import IntegrityError
+from requests.exceptions import RequestException
+
+from catalog.models import Place, Image
 
 class Command(BaseCommand):
 	help = "Загружает файлы json и данные из них в базу данных"
